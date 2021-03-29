@@ -72,6 +72,11 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
+        if(!DateValidatorDateTimeFormatter.isValid(userBirthDate)){
+            showToast("La data di nascita inserita non è valida");
+            return;
+        }
+
         createNewUser(userEmail,userPassword,userName,userSurname,userBirthDate);
 
     }
