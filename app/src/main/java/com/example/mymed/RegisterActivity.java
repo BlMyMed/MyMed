@@ -73,7 +73,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if(!DateValidatorDateTimeFormatter.isValid(userBirthDate)){
-            showToast("La data di nascita inserita non è valida");
+            showToast("La data di nascita inserita non è valida. Utilizzare il seguente formato : Giorno/Mese/Anno (4 cifre)");
             return;
         }
 
@@ -82,7 +82,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void showToast(String toastText) {
-        Toast.makeText(this, toastText, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
     public void createNewUser(String userEmail, String userPassword,String userName,String userSurname,String userBirthDate){
         firebaseAuth.createUserWithEmailAndPassword(userEmail,userPassword)

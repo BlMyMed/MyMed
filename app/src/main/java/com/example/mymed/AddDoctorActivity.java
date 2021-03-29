@@ -10,6 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 import androidx.annotation.NonNull;
@@ -32,6 +34,7 @@ public class AddDoctorActivity extends AppCompatActivity {
 
     private FirebaseAuth firebaseAuth;
     private EditText editSurname;
+    private TextView textSuggestion;
     private RecyclerView recyclerView;
     private HelperAdapter helperAdapter;
     private ImageButton searchButton;
@@ -54,6 +57,7 @@ public class AddDoctorActivity extends AppCompatActivity {
 
         editSurname = (EditText)findViewById(R.id.search_field);
         searchButton = (ImageButton)findViewById(R.id.search_btn);
+        textSuggestion = (TextView)findViewById(R.id.text_suggestion);
         recyclerView= (RecyclerView) findViewById(R.id.result_list);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -68,29 +72,39 @@ public class AddDoctorActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String searchText = editSurname.getText().toString();
-                doctorsList = new ArrayList<>();
-                helperAdapter = new HelperAdapter(doctorsList);
-                recyclerView.setAdapter(helperAdapter);
-                searchText = searchText.substring(0, 1).toUpperCase() + searchText.substring(1).toLowerCase();
-                Query queryRef = databaseReference.orderByChild("surname").startAt(searchText).endAt(searchText + "\uf8ff");
-                queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for(DataSnapshot ds:snapshot.getChildren()){
-                            Doctors dr = ds.getValue(Doctors.class);
-                            dr.setKey(ds.getKey());
-                            doctorsList.add(dr);
+                if(!searchText.replaceAll(" ","").equals("")) {
+                    doctorsList = new ArrayList<>();
+                    helperAdapter = new HelperAdapter(doctorsList);
+                    recyclerView.setAdapter(helperAdapter);
+                    searchText = searchText.substring(0, 1).toUpperCase() + searchText.substring(1).toLowerCase();
+                    Query queryRef = databaseReference.orderByChild("surname").startAt(searchText).endAt(searchText + "\uf8ff");
+                    queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                Doctors dr = ds.getValue(Doctors.class);
+                                dr.setKey(ds.getKey());
+                                doctorsList.add(dr);
+                            }
+                            helperAdapter = new HelperAdapter(doctorsList);
+                            recyclerView.setAdapter(helperAdapter);
+                            if(doctorsList.size()>0) {
+                                textSuggestion.setText("Clicca sul tuo medico per poterlo aggiungere");
+                            }
+                            else{
+                                textSuggestion.setText("Medico non trovato. Verifica di aver inserito correttamente il cognome");
+                            }
+
                         }
-                        helperAdapter = new HelperAdapter(doctorsList);
-                        recyclerView.setAdapter(helperAdapter);
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-
+                        }
+                    });
+                }else{
+                    showToast("Il campo di ricerca risulta vuoto. Riprova.");
+                }
 
             }
         });
@@ -126,5 +140,8 @@ public class AddDoctorActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
+    public void showToast(String toastText) {
+        Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
+        textSuggestion.setText("");
+    }
 }

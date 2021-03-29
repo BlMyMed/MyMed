@@ -13,7 +13,6 @@ public class DateValidatorDateTimeFormatter {
 
         try {
 
-            // ResolverStyle.STRICT for 30, 31 days checking, and also leap year.
             LocalDate.parse(date,
                     DateTimeFormatter.ofPattern("d-M-uuuu")
                             .withResolverStyle(ResolverStyle.STRICT)
@@ -21,11 +20,20 @@ public class DateValidatorDateTimeFormatter {
 
             valid = true;
 
-        } catch (DateTimeParseException e) {
-            e.printStackTrace();
-            valid = false;
-        }
+        } catch (DateTimeParseException ex) {
+            try {
+                LocalDate.parse(date,
+                        DateTimeFormatter.ofPattern("d/M/uuuu")
+                                .withResolverStyle(ResolverStyle.STRICT)
+                );
 
+                valid = true;
+            } catch (DateTimeParseException e) {
+                e.printStackTrace();
+                valid = false;
+            }
+
+        }
         return valid;
     }
 }
